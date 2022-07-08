@@ -3,11 +3,14 @@ import pandas as pd
 import numpy as np
 import os
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
+from argparse import ArgumentParser
 
 #@st.cache
 #CachedStFunctionWarning: Your script uses st.markdown() or st.write() to write to your Streamlit app from within some cached code at main(). This code will only be called when we detect a cache "miss", which can lead to unexpected results."""
 
 path = "./data/uLog01"
+st. set_page_config(layout="wide") 
+
 
 st.title(f"Contents of: {path}")
 
@@ -19,31 +22,36 @@ def main():
             file_size = os.path.getsize(path +"/" +file)
 
             try:
-                df = pd.read_csv(path +"/" +file).drop(['timestamp', 'basestation', 'flight_number'],axis=1)
+                df = pd.read_csv(path +"/" +file).drop(['basestation', 'flight_number'],axis=1)
             except:
                 df = pd.read_csv(path +"/" +file)
             
             #writes the file name
             #followed by the describe pandas data method
             #to a streamlit chart
-
+            
             st.markdown("""---""")
             st.markdown("""""")
 
             st.title(f">{file}")
-            st.markdown(f"Size: {file_size/1000} kb | Shape: {df.shape}")
-            
+            df.timestamp = df.timestamp/1000/1000
+            time_duration = df.timestamp.max() - df.timestamp.min()
+  
+
+            st.markdown(f"Size: {file_size/1000} kb | Time: {time_duration} s | Shape: {df.shape} | ")
+
             #st.dataframe(df.head())
             
             
             col1, col2 = st.columns(2)
             with col1:
                 #st.write("empty block")
-                st.line_chart(df)
+                st.line_chart(df.drop(['timestamp'], axis=1))
 
             with col2:
                 #st.write("empty block")
-                st.dataframe(df.describe())
+                #st.table(df.describe())
+                st.table(df.describe(datetime_is_numeric=False))
                 #AgGrid(df.describe())
                 #st.write(file)
                 #st.line_chart(df)
@@ -52,4 +60,6 @@ def main():
 
 
 if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument("--folder", type=str, default="./data/uLog01")
     main()
