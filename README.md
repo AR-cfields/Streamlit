@@ -1,3 +1,3 @@
 # EX. Describe and Graph all CSV's for a given folder
 
-streamlit run main.py
+please run by executing: `streamlit run main.py`
